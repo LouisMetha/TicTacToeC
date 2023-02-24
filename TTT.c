@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 
 char board[3][3];
 
@@ -55,7 +56,7 @@ int checkWinner(char player) {
 	return 0;
 }
 
-void play(char player) {
+void human_play(char player) {
 
 	int row, col;
 	printf("Player %c's turn --- \n", player);
@@ -73,22 +74,86 @@ void play(char player) {
 
 }
 
+void computer_play(char player) {
+	int row, col;
+	char opponent = 'X';
+
+	printf("Player %c's turn (Computer) --- \n", player);
+
+	// look for winning move
+	for (row = 0; row < 3; row++) {
+		for (col = 0; col < 3; col++) {
+			if (board[row][col] == ' ') {
+				board[row][col] = player;
+				if (checkWinner(player)) {
+					return;
+				}
+				else {
+					board[row][col] = ' ';
+				}
+			}
+		}
+	}
+
+	// look for opponent's winning move
+
+	for (row = 0; row < 3; row++) {
+		for (col = 0; col < 3; col++) {
+			if (board[row][col] == ' ') {
+				board[row][col] = opponent;
+				if (checkWinner(opponent)) {
+					board[row][col] = player;
+					return;
+				}
+				else {
+					board[row][col] = ' ';
+				}
+			}
+		}
+	}
+
+	do {
+		row = rand() % 3;
+		col = rand() % 3;
+	} while (board[row][col] != ' ');
+
+	board[row][col] = player;
+}
+
 void run() {
 	
 	char player = 'X';
 	int i;
-	
+	int mode;
+
+	srand(time(NULL));
+
 	inti_board();
 	display();
+	
+	printf("1 = HumanVsHuman | 2 = HumanVsComputer | Enter Mode: ");
+	scanf_s("%d", &mode);
 
 	for (i = 0; i < 9; i++) {
-		play(player);
+		if (mode == 1) {
+			human_play(player);
+		}
+		else {
+			if (i % 2 == 0) {
+				human_play(player);
+			}
+			else {
+				computer_play(player);
+			}
+		}
+		
 		display();
 
 		if (checkWinner(player)) {
 			printf("Player %c is the winner.\n", player);
 			return;
 		}
+
 		player = (player == 'X' ? 'O' : 'X');
 	}
 	printf("It's a draw!\n");
